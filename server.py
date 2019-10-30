@@ -2,12 +2,13 @@ from DaliServer import DaliServer
 from threading import Thread
 from pythonosc import dispatcher
 from pythonosc import osc_server
-import queue as q
+import queue
 import time
 
 IP = '192.168.1.46'
 PORT = 15200
 
+q = queue.Queue()
 # c = DaliServer()
 # c.send(0, 0)
 # time.sleep(4)
@@ -18,30 +19,41 @@ PORT = 15200
 def broadcast(addr, scene):
 	# global c
 	print('messagione osc', scene)
-	c = DaliServer();
-	c.send(scene)
-	time.sleep(1)
-	c.close()
+	q.put('broadcast-' + str(scene))
 
 
 def group_message(addr, group, scene):
 	# global c
 	print('messaggione osc', group, scene)
-	c = DaliServer();
-	c.send(scene, group)
-	time.sleep(1)
-	c.close()
+	q.put('group-' + str(group) + '-' + str(scene))
+	
 
-dispatcher = dispatcher.Dispatcher()
-dispatcher.map("/Raffaello/Lights/GroupMessage", group_message)
-dispatcher.map("/Raffaello/Lights/Broadcast", broadcast)
+def main_thread():
 
-# server = osc_server.ThreadingOSCUDPServer((IP, PORT), dispatcher)
-server = osc_server.BlockingOSCUDPServer((IP, PORT), dispatcher)
-print("Serving on {}".format(server.server_address))
-server.serve_forever()
+	disp = dispatcher.Dispatcher()
+	disp.map("/Raffaello/Lights/GroupMessage", group_message)
+	disp.map("/Raffaello/Lights/Broadcast", broadcast)
 
+	server = osc_server.ThreadingOSCUDPServer((IP, PORT), disp)
+	# server = osc_server.BlockingOSCUDPServer((IP, PORT), dispatcher)
+	print("Serving on {}".format(server.server_address))
+	server.serve_forever()
 
+main = Thread(target=main_thread)
+main.start()
+c = DaliServer();
+while True:
+	el = q.get()
+	if 'group' in el:
+		el, group, scene  = el.split('-')
+		# c = DaliServer();
+		c.send(int(scene), int(group))
+		# c.close()
+	elif 'broadcast' in el:
+		el, scene = el.split('-')
+		# c = DaliServer();
+		c.send(int(scene), int(group))
+		# c.close()
 # def trottler_close():
 # 	c = DaliServer()
 # 	c.send(1, 0)

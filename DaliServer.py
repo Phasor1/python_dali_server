@@ -1,4 +1,4 @@
-from dali.driver.tridonic import AsyncTridonicDALIUSBDriver
+from dali.driver.tridonic import AsyncTridonicDALIUSBDriver, SyncTridonicDALIUSBDriver
 from dali.address import Group, Broadcast
 from dali.gear.general import GoToScene, _StandardCommand, DAPC
 import logging
@@ -9,8 +9,9 @@ import time
 
 class DaliServer():
 	def __init__(self):
-		self.driver = AsyncTridonicDALIUSBDriver();
+		self.driver = SyncTridonicDALIUSBDriver();
 		self.driver.logger = logging.getLogger('TridonicDALIDriver')
+
 	def signal_handler(self):
 		self.driver.backend.close()
 		sys.exit(0)
