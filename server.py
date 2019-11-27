@@ -27,12 +27,16 @@ def group_message(addr, group, scene):
 	print('messaggione osc', group, scene)
 	q.put('group-' + str(group) + '-' + str(scene))
 	
+def lightValue(addr, lv):
+	print('messaggione osc', lv)
+	q.put('DAPC-' + str(lv))
 
 def main_thread():
 
 	disp = dispatcher.Dispatcher()
 	disp.map("/Raffaello/Lights/GroupMessage", group_message)
 	disp.map("/Raffaello/Lights/Broadcast", broadcast)
+	disp.map("/Raffaello/Lights/lightValue", lightValue)
 
 	server = osc_server.ThreadingOSCUDPServer((IP, PORT), disp)
 	# server = osc_server.BlockingOSCUDPServer((IP, PORT), dispatcher)
@@ -53,6 +57,9 @@ while True:
 		el, scene = el.split('-')
 		# c = DaliServer();
 		c.send(int(scene), int(group))
+	elif 'DAPC':
+		cmd, val = el.split('-')
+		c.DAPC(int(val))
 		# c.close()
 # def trottler_close():
 # 	c = DaliServer()

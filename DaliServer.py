@@ -23,6 +23,11 @@ class DaliServer():
 	def response_received(self, response):
 	    print('Response received: {}'.format(response))
 
+	def DAPC(self, val):
+		dec_val = int((254 / 10) * val)
+		print('DAPC', dec_val)
+		self.driver.send(DAPC(Broadcast(), dec_val))
+
 	def send(self, scene=0, group=None):
 		self.driver.debug = True
 		if group is not None:
