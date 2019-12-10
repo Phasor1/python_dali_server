@@ -4,8 +4,9 @@ from pythonosc import dispatcher
 from pythonosc import osc_server
 import queue
 import time
+import socket
 
-IP = '192.168.1.46'
+IP = socket.gethostbyname(socket.gethostname())
 PORT = 15200
 
 q = queue.Queue()
