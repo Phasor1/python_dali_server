@@ -1,5 +1,5 @@
 from dali.driver.tridonic import AsyncTridonicDALIUSBDriver, SyncTridonicDALIUSBDriver
-from dali.address import Group, Broadcast
+from dali.address import Group, Broadcast, Short
 from dali.gear.general import GoToScene, _StandardCommand, DAPC
 import logging
 
@@ -23,10 +23,10 @@ class DaliServer():
 	def response_received(self, response):
 	    print('Response received: {}'.format(response))
 
-	def DAPC(self, val):
+	def DAPC(self, addr, val):
 		dec_val = int((254 / 10) * val)
-		print('DAPC', dec_val)
-		self.driver.send(DAPC(Broadcast(), dec_val))
+		print('DAPC', Short(int(addr)), dec_val)
+		self.driver.send(DAPC(Short(int(addr)), dec_val))
 
 	def send(self, scene=0, group=None):
 		self.driver.debug = True
